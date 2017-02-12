@@ -20,6 +20,7 @@ Common technique: plot previous period vs. current period for entire series to s
 
 ```{r, message=FALSE, warning=FALSE}
 library(ggplot2)
+library(magrittr)
 library(TSA)
 
 data(hare)
@@ -57,6 +58,7 @@ Box and Jenkins (1976) is the seminal time series analysis citation. They outlin
   
 Covariance and correlation are measures of the linear dependence between random variables but the unitless correlation is somewhat easier to interpret. Note there are several important relationships between correlation, covariance, variance, etc.. and we're primarily lookint at auto-covariance/correlation, meaning the relationships of a series within is self varying by time, however the statistical properties are the same as if it was two different variables. 
 
+**Equation 2.2.6**
 To Investigate covariance properties of time series models, the following equation is used:
 If $c_1, c_2,...,c_m$ and $d_1, d_2,...,d_n$ are constants and $t_1, t_2,...,t_m$ and $s_1, 2_2,...,s_n$ are time points, then:
 $$Cov [ \sum^{m}_{i=1}{c_i Y_{t_i},}\sum^{n}_{j=1}{d_j Y_{s_i}}]= \sum^{m}_{i=1}\sum^{n}_{j=1}c_id_jCov(Y_{t_i},Y_{s_j})$$
@@ -65,4 +67,48 @@ In English - the covariance of the two series is equal to the sum of their multi
 *NOTE: need to confirm this in English translation.*
   
 ### The Random Walk
-Let $e_1,e_2,...$ be an i.i.d. sequence. 
+Let $e_1,e_2,...$ be an i.i.d. sequence, each RV with $\mu = 0$ and variance $\sigma^{2}_{e}$. The observed time series {$Y_t:t=1,2,...$} is constructed:
+$$Y_1 = e_1$$
+$$Y_t = e_1+e_2+...+e_t$$
+also expressed as $Y_t=Y_{t-1}+e_t$ with intial condition $Y_1=e_1$ with $e's$ being the "size of steps" taken along a number line, forward (positive) or backward (negative).  
+
+$$\mu_t = E(Y_t) = E(e_1+e_2+...+e_t) = 0+0+0=0$$  
+
+Which is pretty obvious, the series is going to dance around 0 randomly. For variance:  
+
+$$Var(Y_t)=Var(e_1+e_2+...+e_t) = \sigma^{2}_{e} + \sigma^{2}_{e} +...+ \sigma^{2}_{e}$$
+
+Therefore, $Var(Y_t)=t\sigma^{2}_{e}$ - in English, *process variance increases linearly with time*.   
+
+This is called a random walk for a reason - we can expect zero covariance using equation 2.2.6 unless we're comparing the covariance $i=j$, where the covariance function is just equal to the variance of the series. 
+$$\gamma_{t,s}=Cov(Y_t,Y_s)=Cov(e_1+e_2+...+e_t,e_1+2+e_2+...+e_t+e_{t+1}+...+e_s)$$
+The autocovariance function for all time points t and s is: $\gamma_{t,s}=t\sigma^{2}_{e}$
+
+The autocorrelation function for a random walk is:  
+$$\rho_{t,s}=\frac{\gamma_{t,s}}{\sqrt{\gamma_{t,t}\gamma_{s,s}}}=\sqrt{\frac{t}{s}}$$
+Let's check out some values for $\rho$ to see how the random walk behaves:
+```{r}
+find.rho <- function(t,s){return(sqrt(t/s))}
+find.rho(1,2) %>% print()
+find.rho(8,9) %>% print()
+find.rho(24,25) %>% print()
+find.rho(1,25) %>% print()
+```
+
+Conclusion: values of Y are more and more strongly correlated at t increases (time goes by), but values of Y are less and less correlated the farther apart they are (see 1,25 = 0.2).
+
+*Note: in the book they use a dataset from TSA to show a random walk, but I think it is a lot more instructive to generate one using base R.*
+
+```{r}
+e.series <- rnorm(60, mean = 0, sd = 1)
+
+Y <- 0 #initial condition
+
+for (i in 1:length(e.series)){
+  Y <- c(Y, Y[i-1] + e.series[i])
+}
+
+plot(Y, type = "o", ylab = "Random Walk")
+```
+
+### A Moving Average
