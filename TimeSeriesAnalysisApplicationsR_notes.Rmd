@@ -2,7 +2,8 @@
 title: "Time Series Analysis with Applications in R"
 author: "J. Hamski"
 date: "2/11/2017"
-output: html_document
+output:
+  pdf_document: default
 ---
 
 # Notes from: Time Series Analysis with Applications in R
@@ -160,9 +161,9 @@ $$ \begin{array}{rcl}
 \end{array}\}$$
 If a process is strictly stationary and has a fininte variance, then the covariance function must depend only on the time lag. 
 
-**Weak / Second-order Stationary**
+**Weak / Second-order Stationary**  
 1. The mean function is constant over time  
-2. $\gamma_{t,t-k} = \gamma_{0,k}$ for all time $t$ and lag $k$
+2. $\gamma_{t,t-k} = \gamma_{0,k}$ for all time $t$ and lag $k$  
 In practice and in book examples, this is the form of stationarity used. 
 
 ### White Noise
