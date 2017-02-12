@@ -1,0 +1,68 @@
+---
+title: "Time Series Analysis with Applications in R"
+author: "J. Hamski"
+date: "2/11/2017"
+output: html_document
+---
+
+# Notes from: Time Series Analysis with Applications in R
+2nd Addition, Cryer and Chan, 2008
+
+These notes are mixture of code from the book, my own code, summaries of the text and math shown, and links to other useful resources. The goal is to get a comprehensive understanding of time series analysis. 
+
+## Ch.1 Introduction
+
+Generally time series analysis has two goals: (1) understand or model the stochastic mechanism that gives rise to an observed series, and (2) predict or forcast the future values of a series based on the history of that series and perhaps other related series or factors. 
+
+A somewhat unique feature of time series: we usually cannot assume that the observations arise independently froma  common population. Therefore, models that incoporate dependence are a key concept in time series analysis. 
+
+Common technique: plot previous period vs. current period for entire series to see if there is dependency from one year to the next. The rainfall example shows no trend, indicating independence in rainfall from one year to the next. But look at Hare populations:
+
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(TSA)
+
+data(hare)
+plot(hare, ylab = "Abundance", xlab = "Year", type = "o")
+plot(y = hare, x = zlag(hare), ylab = "Abundance", xlab = "Year") + abline(lm(zlag(hare) ~ hare))
+```
+Neighboring values are very closely related. Low values tend to be followed by low values the next year, and high followed by high. 
+
+Another common time series analysis is looking for seasonality. Modeling a seasonal time series must account for the variation among same month temperature values (January to January), but still maintain the seasonality (January to July).
+
+```{r}
+data(tempdub)
+plot(tempdub, ylab = "Temperature", type = "o")
+```
+
+Sometimes it helps to identify seasonality by labeling the timeseries graphic. 
+```{r}
+data(oilfilters)
+plot(oilfilters, type = "l", ylab = "Sales")
+points(y = oilfilters, x = time(oilfilters), pch = as.vector(season(oilfilters)))
+```
+  
+This makes it apparent that January and Feburary are peaks, while Autumn is a trough. 
+
+
+**A Model-Building Strategy**
+Box and Jenkins (1976) is the seminal time series analysis citation. They outline a three step process: (1) model specification (i.e. picking what might be an appropriate class of models for the problem) (2) model fitting (ie least squares, max likelihood) (3) model diagnosis. Attempt to ahere to the *principle of parsimony* wherein the model should require the smallest number of parameters that will adequately represent the time series. 
+
+## Ch. 2 Fundamental Concepts 
+
+### Time Series and Stochastic Processes
+
+[From Wikipedia](https://en.wikipedia.org/wiki/Autocorrelation):
+*Autocorrelation, also known as serial correlation, is the correlation of a signal with a delayed copy of itself as a function of delay. Informally, it is the similarity between observations as a function of the time lag between them. The analysis of autocorrelation is a mathematical tool for finding repeating patterns, such as the presence of a periodic signal obscured by noise, or identifying the missing fundamental frequency in a signal implied by its harmonic frequencies. It is often used in signal processing for analyzing functions or series of values, such as time domain signals.*  
+  
+Covariance and correlation are measures of the linear dependence between random variables but the unitless correlation is somewhat easier to interpret. Note there are several important relationships between correlation, covariance, variance, etc.. and we're primarily lookint at auto-covariance/correlation, meaning the relationships of a series within is self varying by time, however the statistical properties are the same as if it was two different variables. 
+
+To Investigate covariance properties of time series models, the following equation is used:
+If $c_1, c_2,...,c_m$ and $d_1, d_2,...,d_n$ are constants and $t_1, t_2,...,t_m$ and $s_1, 2_2,...,s_n$ are time points, then:
+$$Cov [ \sum^{m}_{i=1}{c_i Y_{t_i},}\sum^{n}_{j=1}{d_j Y_{s_i}}]= \sum^{m}_{i=1}\sum^{n}_{j=1}c_id_jCov(Y_{t_i},Y_{s_j})$$
+In English - the covariance of the two series is equal to the sum of their multiple times the covariance of the series.   
+*NOTE: there's also a "special case" equation 2.2.7 for the variance of the sum of $c_iY_{t_i}$, come back to it if important.*  
+*NOTE: need to confirm this in English translation.*
+  
+### The Random Walk
+Let $e_1,e_2,...$ be an i.i.d. sequence. 
