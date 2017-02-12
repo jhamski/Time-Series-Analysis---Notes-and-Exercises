@@ -57,6 +57,11 @@ Box and Jenkins (1976) is the seminal time series analysis citation. They outlin
 *Autocorrelation, also known as serial correlation, is the correlation of a signal with a delayed copy of itself as a function of delay. Informally, it is the similarity between observations as a function of the time lag between them. The analysis of autocorrelation is a mathematical tool for finding repeating patterns, such as the presence of a periodic signal obscured by noise, or identifying the missing fundamental frequency in a signal implied by its harmonic frequencies. It is often used in signal processing for analyzing functions or series of values, such as time domain signals.*  
   
 Covariance and correlation are measures of the linear dependence between random variables but the unitless correlation is somewhat easier to interpret. Note there are several important relationships between correlation, covariance, variance, etc.. and we're primarily lookint at auto-covariance/correlation, meaning the relationships of a series within is self varying by time, however the statistical properties are the same as if it was two different variables. 
+**Eq. 2.2.5**
+$$\begin{array}{rcl}
+\gamma_{t,t}=Var(Y_t) & \rho_{t,t}=1 \\ \gamma_{t,s} = \gamma_{s,t} & \rho_{t,s} = \rho_{s,t} \\
+|\gamma_{t,s}| \leq \sqrt{\gamma_{t,t}\gamma_{s,s,}} & |rho_{t,s}\leq1|
+\end{array}$$
 
 **Equation 2.2.6**
 To Investigate covariance properties of time series models, the following equation is used:
@@ -99,6 +104,7 @@ Conclusion: values of Y are more and more strongly correlated at t increases (ti
 
 *Note: in the book they use a dataset from TSA to show a random walk, but I think it is a lot more instructive to generate one using base R.*
 
+A normal distribution is used here to obtain $e$, but that isn't required - its iid that's important. 
 ```{r}
 e.series <- rnorm(60, mean = 0, sd = 1)
 
@@ -112,3 +118,58 @@ plot(Y, type = "o", ylab = "Random Walk")
 ```
 
 ### A Moving Average
+Suppose: $$Y_t = \frac{e_t+e_{t-1}}{2}$$
+
+Again assume e is iid with mean of zero and variance is sigma squared. 
+$$\mu_t=E(Y_t)=\frac{E(e_t)+E(e_{t-1})}{2} = 0$$
+$$Var(Y_t)=Var[\frac{e_t+e_{t-1}}{2}]=\frac{Var(e_t)+Var(e_{t-1})}4{}$$
+$$Cov(Y_t,Y_{t-1})=Cov[\frac{e_t+e_{t-1}}{2},\frac{e_{t-1}+e_{t-2}}{2}] = \frac{Cov(e_{t-1},e_{t-2})}{4}$$ 
+as all other covariances are zero, giving:
+$$\gamma_{t,t-1}=0.25\sigma^2_e$$ 
+for all $t$.  
+**Covariance**
+
+$$\gamma_{t,s} =     \left\{ \begin{array}{rcl}
+0.5\sigma^2_e & \mbox{for}
+& |t-s|=0 \\ 0.25\sigma^2_e  & \mbox{for} & |t-s|=1 \\
+0 & \mbox{for} & |t-s|>1
+\end{array}\right.$$
+
+**Autocorrelation**
+
+$$\rho_{t,s} =     \left\{ \begin{array}{rcl}
+1 & \mbox{for}
+& |t-s|=0 \\ 0.5  & \mbox{for} & |t-s|=1 \\
+0 & \mbox{for} & |t-s|>1
+\end{array}\right.$$
+
+Notice that $\rho_{2,1}=\rho_{3,2}=\rho_{9,8}=0.5$ - values of $Y$ precisely one time unit apart have the same correlatio no matter where they occur in time. 
+
+### Stationarity
+Stationarity is an assumption that the probability laws that govern the behavior of the process observed by the time series do not change over time. "Statistical equilibrium". Even if you chose an arbitrary lag time $k$, the joint distribution of process $\{Y_t\}$ doesn't change. The mean and variance of $Y_t$ and $Y_{t-k}$ are constant over time.  
+
+See book for following proof: $\gamma_{t,s} = \gamma_{0,|t-s|}$ meaning the covariance between $Y_t$ and $Y_s$ is depends on time only through the time difference $|t-s|$, no on the actual placement of times $t$ and $s$!  
+Thus, for a stationary process:  
+$$\gamma_k=Cov(Y_t,Y_{t-k})$$
+$$\rho_k=Corr(Y_t,Y_{t-k})$$
+$$\rho_k=\frac{\gamma_k}{\gamma_0}$$
+When stationary, general properties in eq. 2.2.5 become:   
+$$ \begin{array}{rcl}
+\gamma_{0}=Var(Y_t) & \rho_{t,t}=1 \\ \gamma_{k} = \gamma_{-k} & \rho_{k} = \rho_{-k} \\
+|\gamma_{k}| \leq \gamma_{0} & |\rho_{k}|\leq 1
+\end{array}\}$$
+If a process is strictly stationary and has a fininte variance, then the covariance function must depend only on the time lag. 
+
+**Weak / Second-order Stationary**
+1. The mean function is constant over time  
+2. $\gamma_{t,t-k} = \gamma_{0,k}$ for all time $t$ and lag $k$
+In practice and in book examples, this is the form of stationarity used. 
+
+### White Noise
+White noise process is a sequence of i.i.d. random variables $\{e_t\}$, which is strictly stationary. 
+
+*Note this is an iteration on the moving average example. It is useful for constructing processes and I think it will show up again later on.*
+
+## Ch. 3 Trends
+
+
