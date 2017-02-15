@@ -171,6 +171,56 @@ White noise process is a sequence of i.i.d. random variables $\{e_t\}$, which is
 
 *Note this is an iteration on the moving average example. It is useful for constructing processes and I think it will show up again later on.*
 
-## Ch. 3 Trends
+## Ch. 3 Trends  
+
+General time series: mean function is a totally arbitrary funciton of time  
+Stationary time series: mean function is constant with time  
+This chapter considers simple, but not constant, mean functions of time.  
+  
+Sometimes you see a trend in a random walk - however that percieved trend is just due to strong positive correlation between the series values at nearby time points and the increasing variance in the process as time goes by. These are often called **stochastic trends**.  
+  
+However, also think about a trend like average monthly temperature:  
+```{r}
+data(tempdub)
+plot(tempdub, ylab = "Temperature", type = "o")
+```
+
+The Earth's inclination towards the sun causes this cycle. We might model this as $Y_t=\mu_t+X_t$ where $\mu_t$ is a deterministic function that has a period of 12, hence $$ \mu_t = \mu_{t-12} \> for\ all\ t $$. This model could be described as having a *deterministic trend*.  
+  
+### Estimation of a Constant Mean   
+[For review: Mean and Variance of Sample Mean](https://onlinecourses.science.psu.edu/stat414/node/167)  
+
+Consider a constant mean function (trend): $Y_t=\mu+X_t$ where $E(X_t)=0$ for all $t$. The most common estimate of $\mu$ is the sample mean. Suppose $\{Y_t\}$ is a stationary time series with autocorrelation function $\rho_k$. Then:  
+$$Var(\bar Y)= \frac{\gamma_0}{n}[1+2 \sum_{k=1}^{n-1}(1-\frac{k}{n})\rho_k$$
+$\frac{\gamma_0}{n}$ is the process (population) variance divided b the sample size. If the series is just white noise, the $\rho_k =0$ and the variance of the mean $Var(\bar Y)=\frac{\gamma_0}{n}$.
+
+However, if $\rho_k \geq 0$ (i.e. the autocorrelation for a given lag time isn't 0) we see that $Var(\bar Y)>\frac{\gamma_0}{n}$. (the variance of the sampling mean will be greater than the variance of the population variance) Poistive correlations make the mean *more* difficult to estimate than in the white noise case. For many stationary processes, the autocorrelation function decays quickly enough with increasing lags that:
+$$\sum_{k=0}^{\infty}|\rho_k|<\infty$$
+The random cosine wave is an exception.  
+
+Under this assumption of a quickly decreasing autocorrelation function decay, the following is a useful approximation:
+$$Var(\bar Y)\approx \frac{\gamma_0}{n}[\sum_{k=-\infty}^{\infty}\rho_k]\ for\ large\ n$$
+The variance is inversely proportional to the sample size n. 
+
+
+```{r}
+#using my own random walk simulation to show that the variance of the estimate of the mean increases with sample size if the series is non-stationary
+
+var(Y[1:10])
+var(Y[1:30])
+var(Y[1:60])
+```
+
+
+### Regression Methods
+
+
+
+
+
+
+
+
+
 
 
