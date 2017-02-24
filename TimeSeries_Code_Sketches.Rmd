@@ -2,11 +2,18 @@
 title: "Time Series Code Sketches"
 output: html_notebook
 ---
+```{r}
+library(magrittr)
+library(ggplot2)
+library(dplyr)
+library(gplots)
+```
+
 
 Random walk, testing for autocorrelation
 
 ```{r}
-size = 100
+size = 1000 #need this to be big for later work, but reduce it to see ts character better in plot
 e.series <- rnorm(size, mean = 0, sd = 1)
 #e.series <- runif(size, min = -3, max = 3)
 
@@ -34,10 +41,31 @@ plot(Y, type = "o", ylab = "Random Walk")
 
 A conclusion from the book: for a random walk, values of Y are more and more strongly correlated at t increases (time goes by), but values of Y are less and less correlated the farther apart they are (see 1,25 = 0.2). How can this be shown graphically?
 
+
+values of Y are less and less correlated the farther apart they are
 ```{r}
-corr.distance <- NULL
+corr.distance = NULL
+window = 100
 
+for (i in 1:window) {
+  corr.distance.obs = NULL
+  
+  for (j in 1:window) {
+    
+    corr.iter <- cor(Y[i:(window + i - 1)], Y[j:(window + j - 1)])
+    corr.distance.obs <- c(corr.distance.obs, corr.iter)
+  }
+  
+  corr.distance <- rbind(corr.distance, corr.distance.obs)
+    
+}
 
+head(corr.distance)
+```
 
+```{r}
+corr.distance <- matrix(corr.distance, nrow = 100, ncol = 100)
+
+heatmap.2(corr.distance, dendrogram = 'none')
 ```
 
