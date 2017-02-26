@@ -6,14 +6,14 @@ output: html_notebook
 library(magrittr)
 library(ggplot2)
 library(dplyr)
-library(gplots)
+library(tidyr)
 ```
 
 
 Random walk, testing for autocorrelation
 
 ```{r}
-size = 1000 #need this to be big for later work, but reduce it to see ts character better in plot
+size = 1000
 e.series <- rnorm(size, mean = 0, sd = 1)
 #e.series <- runif(size, min = -3, max = 3)
 
@@ -36,7 +36,7 @@ for (i in 1:length(e.series)){
   Y <- c(Y, Y[i-1] + e.series[i])
 }
 
-plot(Y, type = "o", ylab = "Random Walk")
+plot(Y, type = "l", ylab = "Random Walk")
 ```
 
 A conclusion from the book: for a random walk, values of Y are more and more strongly correlated at t increases (time goes by), but values of Y are less and less correlated the farther apart they are (see 1,25 = 0.2). How can this be shown graphically?
@@ -47,7 +47,7 @@ values of Y are less and less correlated the farther apart they are
 corr.distance = NULL
 window = 100
 
-for (i in 1:window) {
+for (i in seq(1, window, 20)) {
   corr.distance.obs = NULL
   
   for (j in 1:window) {
@@ -60,12 +60,17 @@ for (i in 1:window) {
     
 }
 
-head(corr.distance)
+#head(corr.distance)
 ```
 
 ```{r}
-corr.distance <- matrix(corr.distance, nrow = 100, ncol = 100)
+time.scale <- rep(1:100, 100)
+corr.distance <- matrix(corr.distance, nrow = 5, ncol = 100) %>% 
+  t() %>%
+  as.data.frame() %>%
+  gather() %>%
+  cbind(time.scale)
 
-heatmap.2(corr.distance, dendrogram = 'none')
+ggplot(corr.distance, aes(x = time.scale, y = value, color = key)) + geom_line()
 ```
 
