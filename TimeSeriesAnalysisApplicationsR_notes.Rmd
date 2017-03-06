@@ -213,9 +213,26 @@ var(Y[1:60])
 
 
 ### Regression Methods
+We can estimate parameters of common nonconstant mean trend models using regression analysis. Typical ones used are: linear, quatratic, seasonal means, and cosine trends. 
 
+## Linear and Quadratic Trends in Time
 
+Consider a deterministic time trend: $\mu_t=\beta_0+\beta_1t$, where $\beta_0$ is the intercept and $\beta_1$ is the slope, both unknown. They may be found via the least squares method. 
 
+Let's take the example of fitting a linear model to a random walk. 
+```{r}
+data(rwalk)
+model.1 <- lm(rwalk~time(rwalk))
+summary(model.1)
+
+plot(rwalk, type='o', ylab='y')
+abline(model.1)
+```
+
+$\hat{\beta_1}=0.134, \hat{\beta_0}=-1.008 $, however, fitting a linear model to a random walk is not approriate and this output is discussed more later. 
+
+## Cyclical or Seasonal Trends  
+Consider averag monthly temperature data. Assume the observed series can be 
 
 
 
