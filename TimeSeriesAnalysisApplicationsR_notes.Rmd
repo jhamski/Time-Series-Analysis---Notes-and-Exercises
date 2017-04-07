@@ -3,6 +3,7 @@ title: "Time Series Analysis with Applications in R"
 author: "J. Hamski"
 date: "2/11/2017"
 output:
+  html_document: default
   pdf_document: default
 ---
 

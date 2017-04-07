@@ -1,0 +1,60 @@
+---
+title: "Time Series Analysis with Applications in R - Ch. 12"
+output: html_notebook
+---
+
+# Notes from: Time Series Analysis with Applications in R - Ch. 12
+2nd Addition, Cryer and Chan, 2008
+These notes are mixture of code from the book, my own code, summaries of the text and math shown, and links to other useful resources.  
+  
+## Time Series Models of Heteroskedasticity
+
+Up to this point it the book discusses the conditional mean structure of time series data. This chapter concerns the conditional variance structure. 
+
+Let $\{Y_t\}$ be a time series. The conditional variance of $Y_t$ given past Y's, i.e. $Y_{t-1},Y_{t-2},...$ measures the uncertainty in the deviation of $Y_t$ from its conditional mean $E(Y_t|Y_{t-1},Y_{t-2},...)$. 
+
+If the series follows some ARIMA model, the one step ahead conditional variance equals the noise variance for any present and past values of the process - meaning variance is assumed to be pretty much the same. However in practice, the conditional variance itself may follow a random process. This process may be clustered - hence "conditional heteroskedasticity". 
+
+In finance, conditional variance of the return of a financial asset is often a measure of risk. In the first part of this section we assume the conditional mean (expected return) is zero and the return series should be white noise. Later, models for conditional mean are combined with models of conditional variance. 
+
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(magrittr)
+library(TSA)
+```
+
+## Common Features of Financial Time Series
+
+Let $\{p+t\}$ be the time series of daily prices. The continuously compounded return on the t-th day is: $$r_t=log(p_t)-log(p_{t-1})$$. Multiplying by 100 allows treatment as a percentage. 
+
+Looking at a fund called CREF, there is a pattern of alternating quiet and volatile periods "volatility clustering". 
+
+```{r}
+data(CREF)
+plot(CREF)
+
+r.cref <- diff(log(CREF)) * 100
+plot(r.cref)
+abline(h=0)
+```
+This pattern studies the dynamical pattern in the volatility of a time series (the conditional variance process). The ACF and PACF of the daily returns suggest that the returns have little serial correlation. 
+
+```{r}
+acf(r.cref)
+pacf(r.cref)
+```
+```{r}
+eacf(r.cref)
+```
+```{r}
+McLeod.Li.test(y=r.cref)
+```
+```{r}
+r.cref.df <- as.data.frame(r.cref)
+ggplot(r.cref.df, aes(x = r.cref)) + geom_density() + stat_function(fun = dnorm, colour = "red", args = list(mean = mean(r.cref), sd = sd(r.cref)))
+```
+
+
+# The ARCH(1) Model
+Autoregressive conditional heteroscedasticity (ARCH) model proposed by Engle (1982) for the changing variance of a time series. As seen by the returns above, financial time series are often serially uncorrelated with mean zero and exhibit volatility clustering. 
+
