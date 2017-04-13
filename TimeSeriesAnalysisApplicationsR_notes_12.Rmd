@@ -21,6 +21,7 @@ In finance, conditional variance of the return of a financial asset is often a m
 library(ggplot2)
 library(magrittr)
 library(TSA)
+library(tseries)
 ```
 
 ## Common Features of Financial Time Series
@@ -57,4 +58,48 @@ ggplot(r.cref.df, aes(x = r.cref)) + geom_density() + stat_function(fun = dnorm,
 
 # The ARCH(1) Model
 Autoregressive conditional heteroscedasticity (ARCH) model proposed by Engle (1982) for the changing variance of a time series. As seen by the returns above, financial time series are often serially uncorrelated with mean zero and exhibit volatility clustering. 
+
+A return series $\{r_t\}$ is often serially uncorrelated with zero mean. The conditional variance (conditional volatility) of it is $\sigma^2_{t|t-1}$. When $r_t$ is available $r^2_t$ provides an unbiased estimator of the conditional variance. A volatile period is indicated by large squared returns, an non-volatie period by small squared returns. The squaring primarily allows positive and negative returns to be viewed the same way.  
+
+The ARCH(1) model assumes the series $r_t$ is generated:
+$$r_t=\sigma_{t|t-1}\varepsilon_t$$
+$$\sigma^2_{t|t-1}=\omega+\alpha r^2_{t-1}$$
+
+Where $\alpha$ $\omega$ are unknown parameters and $\{\varepsilon_t\}$ is an iid sequence with zero mean and unit variance (aka [**innovations**](https://en.wikipedia.org/wiki/Innovation_(signal_processing))). Another definition of innovations: "represent the new information that is added to the process at each instant"
+
+Each is independent of $r_{t-j}, j= 1,2,...$. The innovation is presumed to have unit variance so that the conditional variance of $r_t$ equals $\sigma^2_{t|t-1}$. See proof on page 286, basically since the expectation of the conditional variance equals one, conditioning on it just gives the return series expectation.   
+
+### Simulating an ARCH(1) Model with w=1 and alpha = 0.9
+
+```{r}
+garch01.sim = garch.sim(alpha=c(0.01, 0.9), n = 500)
+plot(garch01.sim, type = 'l', ylab = expression(r[t]), xlab = 't')
+```
+
+Note the conditional variance is not directly observable, it is a latent variable. This makes the regression analysis more difficult (i.e. finding values for w and a). The conditional variance is hence replaced by:
+$$\eta_t=r^2_t-\sigma^2_{t|t-1}$$
+Substituting this into the definiton of ARCH(1) above:
+$$r^2_t=\omega+\alpha r^2_{t-1}+\eta_t$$
+Thus, the squared return series satisfies an AR(1) model under the assumption of an ARCH(1) model of the return series. An ARCH(1) model may be used when an AR(1) model is appropriate for the squared returns. 
+
+Since the returns must be non-negative, the parameters $\omega$ and $\alpha$ must be non-negative. If the return series is stationary with variance $\sigma^2$ then taking expectations of both sides of the above equation yeilds: 
+$$\sigma^2=\omega+\alpha \sigma^2 = \frac{\omega}{(1-\alpha)},\ hence \ 0\leq\alpha\leq1 $$
+**More explanation of ARCH(1) in book pg 287, notes not taken for now.**
+
+# GARCH Models
+
+First a general observation: time series modeling is about progressively squeezing as much signal from the data as possible. ARCH(1) looks back one timestep (hence t|t-1). Now we're going to look back further. 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
